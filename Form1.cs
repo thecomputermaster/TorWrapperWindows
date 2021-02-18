@@ -33,6 +33,8 @@ namespace WindowsTorWrapper
             }
 
         }
+        
+        // For all tor process related connections, we use background workers so our GUI does not get frozen waiting for the tor process to respond.
 
         private void backgroundWorkerupdateorinstall_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
@@ -49,6 +51,7 @@ namespace WindowsTorWrapper
 
         private void button1_Click(object sender, EventArgs e)
         {
+        // Here, we start the tor process with the generated server configuration the user typed in the text box.
             string configtorrc = richTextBox1.Text;
             MessageBox.Show("Torrc file created. Now launching your relay. Please see the above window for the progress. If you see 'Testing indicates your ORPort is reachable. Publishing server descriptor, all is good. If you see a failure message, either your tor configuration is incorrect or the connection is being blocked. I will configure Windows Defender Firewall to allow the relay traffic autommatically, but any other firewall will need to be manually configured to allow Tor.");
             System.IO.File.WriteAllText(@"C:\torrc.txt", configtorrc);
@@ -76,6 +79,7 @@ namespace WindowsTorWrapper
 
         private void button3_Click(object sender, EventArgs e)
         {
+        //On the user clicking this button, we add a registry key so tor server will start automatically when Windows boots. Does so by adding the tool to the Windows launch agent, which in turn auto starts tor with the relay configuration.
 
             using (RegistryKey key = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true))
             {
@@ -85,7 +89,7 @@ namespace WindowsTorWrapper
 
         private void button4_Click(object sender, EventArgs e)
         {
-
+//Button to remove tor relay from Windows launch agent.
             using (RegistryKey key = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true))
             {
                 key.DeleteValue("Start Tor Relay", false);
@@ -140,7 +144,7 @@ namespace WindowsTorWrapper
         private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs c)
         {
 
-
+// As part of the auto configuration, we add a rule to the Windows Firewall to allow tor traffic.
             PowerShell ps2 = PowerShell.Create();
             string scriptfirewallrule = string.Format("netsh advfirewall firewall add rule name = 'Tor Relay' dir =in action = allow program = 'C:\\ProgramData\\chocolatey\\lib\\tor\\tools\\Tor\\tor.exe' Enable = yes");
             PowerShell psout = PowerShell.Create();
@@ -159,6 +163,8 @@ namespace WindowsTorWrapper
 
         private void backgroundWorkerupdateorinstall_DoWork(object sender, DoWorkEventArgs e)
         {
+        //On starting, we check to see if tor is running the newest version. If not, we update tor to the newest version automatically for the user.
+        
             MessageBox.Show("I am now making sure Tor is running the newest version. If it is not, I will autmatically update tor to the newest verison. Please one minute. You may see CMD flash at you");
             PowerShell ps = PowerShell.Create();
             string script = string.Format("Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))");
@@ -180,6 +186,7 @@ namespace WindowsTorWrapper
             {
                 using (Process p = new Process())
                 {
+                //If tor is not installed, we run a script which installs it.
 
                     MessageBox.Show("It looks like you don't have tor installed. Let's fix that. Windows Powershell will now open asking you if you want to run a script. This script will install tor. Type y and press enter.");
                     ProcessStartInfo info = new ProcessStartInfo("powershell.exe");
@@ -193,8 +200,10 @@ namespace WindowsTorWrapper
                 }
 
             }
+            //Here, we check to see if a tor relay configuration already exists (by checking if there is already a torrc file). If it does, then we start tor with the exisitng torrc configration automatically.
             if (System.IO.File.Exists(@"C:\\torrc.txt"))
             {
+            
                 MessageBox.Show("It looks like you already have a torrc file written. I will start tor now with these configurations. To change the torrc file, use the following window.");
                 PowerShell psprestart = PowerShell.Create();
                 string starttor = string.Format("tor.exe -f C:\\torrc.txt");
