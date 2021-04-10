@@ -9,6 +9,8 @@ Can configure relay to start on Windows startup if desired.
 
 Automatically keeps tor running newest version.
 
+Monitor IP addresses tor server is communicating with, log the IP addresses of people using your relay.
+
 Drawbacks:
 
 Only supports vanilla bridges
