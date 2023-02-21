@@ -1,5 +1,4 @@
 using Microsoft.Win32;
-using Nancy.Hosting.Self;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -60,6 +59,7 @@ namespace WindowsTorWrapper
 
 
 
+
         private void button2_Click(object sender, EventArgs e)
         {
 
@@ -109,9 +109,9 @@ namespace WindowsTorWrapper
             DisplayIP.RunWorkerAsync();
 
         }
-            
-            
-   private void button5_Click(object sender, EventArgs e)
+
+
+        private void button5_Click(object sender, EventArgs e)
         {
             using (Process p = new Process())
             {
@@ -140,13 +140,13 @@ namespace WindowsTorWrapper
 
         private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs c)
         {
-           
+
 
             PowerShell psout = PowerShell.Create();
             string scriptfirewallruleout = string.Format("netsh advfirewall firewall add rule name = 'Tor Relay' dir =out action = allow program = 'C:\\ProgramData\\chocolatey\\lib\\tor\\tools\\Tor\\tor.exe' Enable = yes");
             psout.AddScript(scriptfirewallruleout);
             psout.Invoke();
-   
+
             PowerShell ps3 = PowerShell.Create();
             string starttor = string.Format("tor.exe -f C:\\torrc.txt");
             ps3.AddScript(starttor);
@@ -154,13 +154,13 @@ namespace WindowsTorWrapper
             MessageBox.Show("To see tor progress, open the notices.log file. It will be where you set it to be in the torrc configuration above.");
 
 
-            
+
 
         }
 
         private void backgroundWorkerupdateorinstall_DoWork(object sender, DoWorkEventArgs e)
         {
-            MessageBox.Show("I am now making sure Tor is running the newest version. If it is not, I will autmatically update tor to the newest verison. Please one minute. You may see CMD flash at you");
+            MessageBox.Show("I am now making sure Tor is running the newest version. If it is not, I will automatically update tor to the newest verison. Please one minute. You may see CMD flash at you.");
             PowerShell ps = PowerShell.Create();
             string script = string.Format("Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))");
             ps.AddScript(script);
@@ -174,7 +174,7 @@ namespace WindowsTorWrapper
                 info.Arguments = "choco upgrade tor";
                 info.UseShellExecute = true;
 
-              
+
 
 
             }
@@ -205,7 +205,7 @@ namespace WindowsTorWrapper
 
             }
         }
-
+    
 
         private void backgroundWorkerStartAlreadyConfigured_DoWork(object sender, DoWorkEventArgs e)
         {
@@ -217,7 +217,7 @@ namespace WindowsTorWrapper
 
 
         }
-      
+
         private void DisplayIP_DoWork(object sender, DoWorkEventArgs e)
         {
             using (Process p = new Process())
@@ -231,7 +231,7 @@ namespace WindowsTorWrapper
 
                 Process.Start(info);
 
-                
+
 
             }
 
@@ -239,13 +239,10 @@ namespace WindowsTorWrapper
 
         private void backgroundWorker2_DoWork(object sender, DoWorkEventArgs e)
         {
-           
             PowerShell psout = PowerShell.Create();
             string scriptfirewallruleout = string.Format("netsh advfirewall firewall add rule name = 'Tor Relay' dir =in action = allow program = 'C:\\ProgramData\\chocolatey\\lib\\tor\\tools\\Tor\\tor.exe' Enable = yes");
             psout.AddScript(scriptfirewallruleout);
             psout.Invoke();
-
-
         }
     }
 }
